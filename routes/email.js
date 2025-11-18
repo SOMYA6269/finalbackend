@@ -46,24 +46,25 @@ emailRouter.post('/test', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to send test email',
-      details: 'Make sure EMAIL_USER and EMAIL_PASSWORD are configured in .env'
+      details: 'Make sure BREVO_API_KEY is configured in .env'
     })
   }
 })
 
 // Check email configuration
 emailRouter.get('/config', (req, res) => {
-  const isConfigured = !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD)
+  const isConfigured = !!process.env.BREVO_API_KEY
   
   res.json({
     success: true,
     configured: isConfigured,
-    service: process.env.EMAIL_SERVICE || 'gmail',
-    email: process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : 'Not configured',
+    service: 'Brevo (API)',
+    senderEmail: process.env.SENDER_EMAIL || 'noreply@draganddrop.in',
+    senderName: process.env.SENDER_NAME || 'Drag & Drop ERP',
     contactEmail: process.env.CONTACT_EMAIL || 'dragdroperp@gmail.com',
     message: isConfigured 
-      ? 'Email service is configured and ready' 
-      : 'Email service is not configured. Add EMAIL_USER and EMAIL_PASSWORD to .env'
+      ? 'Brevo email service is configured and ready' 
+      : 'Email service is not configured. Add BREVO_API_KEY to .env'
   })
 })
 
