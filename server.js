@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import bodyParser from 'body-parser'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
 import { contactRouter } from './routes/contact.js'
 import { ratingsRouter } from './routes/ratings.js'
 import { emailRouter } from './routes/email.js'
@@ -109,39 +110,53 @@ app.get('/api', (req, res) => {
 })
 
 // -------------------------------
-// Static File Serving for React Router
+// Static File Serving for React Router (Only if frontend/dist exists)
 // -------------------------------
-// Serve static files from frontend/dist directory (favicon, assets, etc.)
+// Check if frontend/dist directory exists (for local development)
 const distPath = path.resolve(__dirname, '../frontend/dist')
-app.use(express.static(distPath, {
-  maxAge: '1y', // Cache static assets for 1 year
-  etag: true,
-  lastModified: true
-}))
+const distExists = fs.existsSync(distPath) && fs.statSync(distPath).isDirectory()
 
-// Wildcard route: All non-API routes should serve index.html (for React Router)
-// This must be LAST, after all other routes
-app.get('*', (req, res, next) => {
-  // Skip API routes - they should have been handled above
-  if (req.path.startsWith('/api')) {
-    return next()
-  }
-  
-  // Skip static files that should exist (favicon, robots.txt, sitemap.xml, etc.)
-  const staticFiles = ['/favicon.ico', '/robots.txt', '/sitemap.xml']
-  if (staticFiles.includes(req.path)) {
-    return next()
-  }
-  
-  // Serve index.html for all other routes (React Router will handle routing)
-  const indexPath = path.resolve(distPath, 'index.html')
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Error serving index.html:', err)
-      res.status(404).json({ error: 'Page not found' })
+if (distExists) {
+  // Serve static files from frontend/dist directory (favicon, assets, etc.)
+  app.use(express.static(distPath, {
+    maxAge: '1y', // Cache static assets for 1 year
+    etag: true,
+    lastModified: true
+  }))
+
+  // Wildcard route: All non-API routes should serve index.html (for React Router)
+  // This must be LAST, after all other routes
+  app.get('*', (req, res, next) => {
+    // Skip API routes - they should have been handled above
+    if (req.path.startsWith('/api')) {
+      return next()
     }
+    
+    // Skip static files that should exist (favicon, robots.txt, sitemap.xml, etc.)
+    const staticFiles = ['/favicon.ico', '/robots.txt', '/sitemap.xml']
+    if (staticFiles.includes(req.path)) {
+      return next()
+    }
+    
+    // Serve index.html for all other routes (React Router will handle routing)
+    const indexPath = path.resolve(distPath, 'index.html')
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error serving index.html:', err)
+        res.status(404).json({ error: 'Page not found' })
+      }
+    })
   })
-})
+} else {
+  // If frontend/dist doesn't exist (production backend-only deployment)
+  // Only handle API routes, return 404 for everything else
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ error: 'API endpoint not found' })
+    }
+    res.status(404).json({ error: 'Not found. This is a backend API server.' })
+  })
+}
 
 // -------------------------------
 // Start Server
