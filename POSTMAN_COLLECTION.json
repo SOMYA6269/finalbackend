@@ -1,0 +1,145 @@
+{
+  "info": {
+    "name": "Drag & Drop ERP API",
+    "description": "API collection for testing Drag & Drop ERP backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "health"]
+        }
+      }
+    },
+    {
+      "name": "Email - Check Configuration",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/email/config",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "email", "config"]
+        }
+      }
+    },
+    {
+      "name": "Email - Send Test Email",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"your-email@gmail.com\",\n  \"phone\": \"1234567890\",\n  \"reason\": \"general\",\n  \"message\": \"This is a test email from Postman\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/email/test",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "email", "test"]
+        }
+      }
+    },
+    {
+      "name": "Contact - Submit Form",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"phone\": \"1234567890\",\n  \"reason\": \"support\",\n  \"message\": \"I need help with my account\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/contact/submit",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "contact", "submit"]
+        }
+      }
+    },
+    {
+      "name": "Contact - Get All (Admin)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/contact/all",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "contact", "all"]
+        }
+      }
+    },
+    {
+      "name": "Ratings - Submit Rating",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test User\",\n  \"rating\": 5,\n  \"comment\": \"Great product! Very satisfied.\",\n  \"page\": \"grocery-studio\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/ratings/submit",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "ratings", "submit"]
+        }
+      }
+    },
+    {
+      "name": "Ratings - Get All",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/ratings/all?page=grocery-studio&limit=10",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "ratings", "all"],
+          "query": [
+            {
+              "key": "page",
+              "value": "grocery-studio"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+
