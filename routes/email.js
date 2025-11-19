@@ -1,7 +1,68 @@
 import express from 'express'
+import SibApiV3Sdk from 'sib-api-v3-sdk'
+import dotenv from 'dotenv'
 import { sendContactEmail } from '../services/email.js'
 
+dotenv.config()
+
 export const emailRouter = express.Router()
+
+// Send email endpoint using Brevo API
+emailRouter.post('/send-email', async (req, res) => {
+  try {
+    const { name, email, message } = req.body
+
+    // Validation
+    if (!name || !email || !message) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: name, email, and message are required'
+      })
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid email address'
+      })
+    }
+
+    // Initialize Brevo API client
+    const client = SibApiV3Sdk.ApiClient.instance
+    client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY
+
+    const brevoEmail = new SibApiV3Sdk.TransactionalEmailsApi()
+
+    // Send email using Brevo API
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
+      sender: { email: 'dragdroperp@gmail.com', name: 'Drag & Drop ERP' },
+      to: [{ email: 'dragdroperp@gmail.com' }],
+      subject: 'New Contact Form Message',
+      htmlContent: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${req.body.name}</p>
+        <p><strong>Email:</strong> ${req.body.email}</p>
+        <p><strong>Message:</strong> ${req.body.message}</p>
+      `
+    })
+
+    await brevoEmail.sendTransacEmail(sendSmtpEmail)
+
+    res.json({
+      success: true,
+      message: 'Email sent successfully'
+    })
+  } catch (error) {
+    console.error('Send email error:', error)
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to send email',
+      details: error.response?.body || 'Make sure BREVO_API_KEY is configured in .env'
+    })
+  }
+})
 
 // Test email endpoint
 emailRouter.post('/test', async (req, res) => {
