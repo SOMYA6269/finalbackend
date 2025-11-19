@@ -1,14 +1,30 @@
-import axios from 'axios'
+import SibApiV3Sdk from 'sib-api-v3-sdk'
 import dotenv from 'dotenv'
 
 dotenv.config()
 
-// Brevo API Configuration
-const BREVO_API_KEY = process.env.BREVO_API_KEY
-const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email'
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'dragdroperp@gmail.com'
-const SENDER_EMAIL = process.env.SENDER_EMAIL || 'noreply@draganddrop.in'
-const SENDER_NAME = process.env.SENDER_NAME || 'Drag & Drop ERP'
+// Initialize Brevo API client
+const client = SibApiV3Sdk.ApiClient.instance
+const apiKey = client.authentications['api-key']
+
+// Get Brevo API key from environment
+function getBrevoApiKey() {
+  const apiKeyValue = process.env.BREVO_API_KEY
+  if (!apiKeyValue) {
+    console.error('❌ BREVO_API_KEY environment variable is not set')
+    console.error('   Available env vars:', Object.keys(process.env).filter(k => k.includes('BREVO') || k.includes('EMAIL')).join(', ') || 'none')
+  }
+  return apiKeyValue
+}
+
+// Configure API key
+const BREVO_API_KEY = getBrevoApiKey()
+if (BREVO_API_KEY) {
+  apiKey.apiKey = BREVO_API_KEY.trim()
+}
+
+// Create Brevo email API instance
+const brevoEmail = new SibApiV3Sdk.TransactionalEmailsApi()
 
 /**
  * Send email using Brevo API
@@ -17,18 +33,28 @@ const SENDER_NAME = process.env.SENDER_NAME || 'Drag & Drop ERP'
  * @param {string} emailData.subject - Email subject
  * @param {string} emailData.html - HTML email content
  * @param {string} [emailData.name] - Recipient name (optional)
+ * @param {string} [emailData.senderName] - Sender name (optional, defaults to env var)
+ * @param {string} [emailData.senderEmail] - Sender email (optional, defaults to env var)
  */
-async function sendBrevoEmail({ to, subject, html, name }) {
-  if (!BREVO_API_KEY) {
-    console.warn('⚠️  Brevo API key not configured. Skipping email send.')
-    return
+async function sendBrevoEmail({ to, subject, html, name, senderName, senderEmail }) {
+  const apiKeyValue = getBrevoApiKey()
+  
+  if (!apiKeyValue || apiKeyValue.trim() === '') {
+    console.error('❌ Brevo API key is missing or empty. Cannot send email.')
+    throw new Error('Brevo API key is not configured. Please set BREVO_API_KEY environment variable.')
   }
 
+  // Update API key if needed
+  apiKey.apiKey = apiKeyValue.trim()
+
+  const SENDER_NAME = senderName || process.env.SENDER_NAME || 'Drag & Drop ERP'
+  const SENDER_EMAIL = senderEmail || process.env.SENDER_EMAIL || 'dragdroperp@gmail.com'
+
   try {
-    const payload = {
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
       sender: {
-        name: SENDER_NAME,
-        email: SENDER_EMAIL
+        email: SENDER_EMAIL,
+        name: SENDER_NAME
       },
       to: [
         {
@@ -38,20 +64,13 @@ async function sendBrevoEmail({ to, subject, html, name }) {
       ],
       subject: subject,
       htmlContent: html
-    }
-
-    const response = await axios.post(BREVO_API_URL, payload, {
-      headers: {
-        'api-key': BREVO_API_KEY,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }
     })
 
-    console.log('✅ Email sent successfully via Brevo:', response.data.messageId)
-    return response.data
+    const data = await brevoEmail.sendTransacEmail(sendSmtpEmail)
+    console.log('✅ Email sent successfully via Brevo API:', data.messageId)
+    return data
   } catch (error) {
-    console.error('❌ Brevo email sending error:', error.response?.data || error.message)
+    console.error('❌ Brevo email sending error:', error.response?.body || error.message)
     throw error
   }
 }
@@ -66,11 +85,17 @@ async function sendBrevoEmail({ to, subject, html, name }) {
  * @param {string} data.message - User message
  */
 export async function sendContactEmail(data) {
-  // Check if Brevo is configured
-  if (!BREVO_API_KEY) {
-    console.warn('⚠️  Brevo API key not configured. Skipping email send.')
-    return
+  // Get API key at runtime (not module load time)
+  const BREVO_API_KEY = getBrevoApiKey()
+  
+  if (!BREVO_API_KEY || BREVO_API_KEY.trim() === '') {
+    console.error('❌ Brevo API key is missing or empty. Cannot send contact emails.')
+    throw new Error('Brevo API key is not configured. Please set BREVO_API_KEY environment variable.')
   }
+
+  const CONTACT_EMAIL = process.env.CONTACT_EMAIL || 'dragdroperp@gmail.com'
+  const SENDER_EMAIL = process.env.SENDER_EMAIL || 'noreply@draganddrop.in'
+  const SENDER_NAME = process.env.SENDER_NAME || 'Drag & Drop ERP'
 
   const { name, email, phone, reason, message } = data
 
@@ -126,19 +151,23 @@ export async function sendContactEmail(data) {
       sendBrevoEmail({
         to: CONTACT_EMAIL,
         subject: `New ${subject} from ${name}`,
-        html: companyEmailHtml
+        html: companyEmailHtml,
+        senderName: SENDER_NAME,
+        senderEmail: SENDER_EMAIL
       }),
       sendBrevoEmail({
         to: email,
         subject: 'Thank you for contacting Drag & Drop ERP',
         html: userEmailHtml,
-        name: name
+        name: name,
+        senderName: SENDER_NAME,
+        senderEmail: SENDER_EMAIL
       })
     ])
     
-    console.log('✅ Contact form emails sent successfully via Brevo')
+    console.log('✅ Contact form emails sent successfully via Brevo API')
   } catch (error) {
-    console.error('❌ Contact email sending error:', error.response?.data || error.message)
+    console.error('❌ Contact email sending error:', error.response?.body || error.message)
     throw error
   }
 }
