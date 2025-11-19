@@ -1,7 +1,11 @@
-import SibApiV3Sdk from 'sib-api-v3-sdk'
+import { createRequire } from 'module'
 import dotenv from 'dotenv'
 
 dotenv.config()
+
+// Use createRequire to import CommonJS module in ES modules
+const require = createRequire(import.meta.url)
+const SibApiV3Sdk = require('sib-api-v3-sdk')
 
 // Initialize Brevo API client
 const client = SibApiV3Sdk.ApiClient.instance
