@@ -159,7 +159,7 @@ export async function sendContactEmail({ name, email, message }) {
     console.log('      Subject: New contact request')
 
     const companyResult = await resend.emails.send({
-      from: 'ERP Contact <noreply@mydomain.com>',
+      from: 'ERP Contact <noreply@draganddrop.in>',
       to: ['dragdroperp@gmail.com'],
       subject: 'New Contact Request - ERP Contact',
       html: createContactNotificationTemplate({ name, email, message }),
@@ -169,12 +169,12 @@ export async function sendContactEmail({ name, email, message }) {
 
     // Send thank-you email to user
     console.log('   📤 Sending thank-you to user...')
-    console.log('      From: ERP Contact <noreply@mydomain.com>')
+    console.log('      From: ERP Contact <noreply@draganddrop.in>')
     console.log('      To:', email)
     console.log('      Subject: Thank you for contacting ERP Contact')
 
     const userResult = await resend.emails.send({
-      from: 'ERP Contact <noreply@mydomain.com>',
+      from: 'ERP Contact <noreply@draganddrop.in>',
       to: [email],
       subject: 'Thank You for Contacting ERP Contact',
       html: createThankYouTemplate({ name }),
