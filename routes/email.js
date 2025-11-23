@@ -1,13 +1,6 @@
 import express from 'express'
-import { createRequire } from 'module'
-import dotenv from 'dotenv'
+import SibApiV3Sdk from 'sib-api-v3-sdk'
 import { sendContactEmail } from '../services/email.js'
-
-dotenv.config()
-
-// Use createRequire to import CommonJS module in ES modules
-const require = createRequire(import.meta.url)
-const SibApiV3Sdk = require('sib-api-v3-sdk')
 
 export const emailRouter = express.Router()
 
@@ -33,37 +26,48 @@ emailRouter.post('/send-email', async (req, res) => {
       })
     }
 
+    // Check if BREVO_API_KEY is configured
+    const apiKey = process.env.BREVO_API_KEY
+    if (!apiKey || apiKey.trim() === '') {
+      console.error('❌ BREVO_API_KEY environment variable is not set or empty')
+      return res.status(500).json({
+        success: false,
+        error: 'Email service not configured',
+        details: 'BREVO_API_KEY environment variable is missing'
+      })
+    }
+
     // Initialize Brevo API client
     const client = SibApiV3Sdk.ApiClient.instance
-    client.authentications['api-key'].apiKey = process.env.BREVO_API_KEY
+    client.authentications['api-key'].apiKey = apiKey.trim()
 
     const brevoEmail = new SibApiV3Sdk.TransactionalEmailsApi()
 
     // Send email using Brevo API
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
-      sender: { email: 'dragdroperp@gmail.com', name: 'Drag & Drop ERP' },
-      to: [{ email: 'dragdroperp@gmail.com' }],
+    const result = await brevoEmail.sendTransacEmail({
+      sender: { email: process.env.SENDER_EMAIL || 'dragdroperp@gmail.com', name: process.env.SENDER_NAME || 'Drag & Drop ERP' },
+      to: [{ email: process.env.CONTACT_EMAIL || 'dragdroperp@gmail.com' }],
       subject: 'New Contact Form Message',
       htmlContent: `
         <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${req.body.name}</p>
-        <p><strong>Email:</strong> ${req.body.email}</p>
-        <p><strong>Message:</strong> ${req.body.message}</p>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong> ${message}</p>
       `
     })
 
-    await brevoEmail.sendTransacEmail(sendSmtpEmail)
-
+    console.log('✅ Email sent successfully via Brevo API:', result.messageId)
     res.json({
       success: true,
-      message: 'Email sent successfully'
+      message: 'Email sent successfully',
+      messageId: result.messageId
     })
   } catch (error) {
-    console.error('Send email error:', error)
+    console.error('❌ Send email error:', error.response?.body || error.message)
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to send email',
-      details: error.response?.body || 'Make sure BREVO_API_KEY is configured in .env'
+      details: error.response?.body || 'Make sure BREVO_API_KEY is configured correctly'
     })
   }
 })
@@ -118,18 +122,21 @@ emailRouter.post('/test', async (req, res) => {
 
 // Check email configuration
 emailRouter.get('/config', (req, res) => {
-  const isConfigured = !!process.env.BREVO_API_KEY
-  
+  const apiKey = process.env.BREVO_API_KEY
+  const isConfigured = !!(apiKey && apiKey.trim())
+
   res.json({
     success: true,
     configured: isConfigured,
     service: 'Brevo (API)',
-    senderEmail: process.env.SENDER_EMAIL || 'noreply@draganddrop.in',
+    senderEmail: process.env.SENDER_EMAIL || 'dragdroperp@gmail.com',
     senderName: process.env.SENDER_NAME || 'Drag & Drop ERP',
     contactEmail: process.env.CONTACT_EMAIL || 'dragdroperp@gmail.com',
-    message: isConfigured 
-      ? 'Brevo email service is configured and ready' 
-      : 'Email service is not configured. Add BREVO_API_KEY to .env'
+    apiKeyConfigured: isConfigured,
+    apiKeyLength: apiKey ? apiKey.length : 0,
+    message: isConfigured
+      ? 'Brevo email service is configured and ready'
+      : 'Email service is not configured. Add BREVO_API_KEY environment variable'
   })
 })
 
