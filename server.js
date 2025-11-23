@@ -68,7 +68,24 @@ async function connectMongoDB() {
   }
 }
 
+// -------------------------------
+// Email Service Check
+// -------------------------------
+function checkEmailService() {
+  const apiKey = process.env.BREVO_API_KEY
+  if (!apiKey || apiKey.trim() === '') {
+    console.warn('⚠️  BREVO_API_KEY environment variable is not set')
+    console.warn('   Email functionality will not work')
+    console.warn('   Set BREVO_API_KEY in your environment variables')
+  } else {
+    console.log('✅ Brevo API key is configured')
+  }
+}
+
 connectMongoDB()
+
+// Check email service configuration
+checkEmailService()
 
 // -------------------------------
 // Routes
