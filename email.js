@@ -1,10 +1,10 @@
-import SibApiV3Sdk from 'sib-api-v3-sdk'
+import { Resend } from 'resend'
 import dotenv from 'dotenv'
 
 dotenv.config()
 
 /**
- * Send contact email using Brevo Transactional Email API
+ * Send contact email using Resend API
  * @param {Object} contactData - Contact form data
  * @param {string} contactData.name - Contact name
  * @param {string} contactData.email - Contact email
@@ -12,73 +12,62 @@ dotenv.config()
  */
 export async function sendContactEmail({ name, email, message }) {
   // Get API key from environment
-  const apiKey = process.env.BREVO_API_KEY
+  const apiKey = process.env.RESEND_API_KEY
 
   if (!apiKey || apiKey.trim() === '') {
-    console.error('❌ BREVO_API_KEY environment variable is not set')
-    throw new Error('Brevo API key is not configured')
+    console.error('❌ RESEND_API_KEY environment variable is not set')
+    throw new Error('Resend API key is not configured')
   }
 
-  // Initialize Brevo API client
-  const client = SibApiV3Sdk.ApiClient.instance
-  client.authentications['api-key'].apiKey = apiKey.trim()
-
-  // Create Brevo email API instance
-  const brevoEmail = new SibApiV3Sdk.TransactionalEmailsApi()
+  // Initialize Resend client
+  const resend = new Resend(apiKey.trim())
 
   // Create email content
-  // IMPORTANT: The sender email domain must be verified in Brevo dashboard
-  // Go to: https://app.brevo.com/settings/domains to verify domains
-  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail({
-    sender: {
-      name: 'ERP Contact',
-      email: 'dragdroperp@gmail.com'
-    },
-    to: [{
-      email: 'dragdroperp@gmail.com'
-    }],
-    subject: 'New contact request',
-    htmlContent: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #0f172a;">New Contact Request</h2>
-        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-          <p><strong>Message:</strong></p>
-          <p style="background: white; padding: 15px; border-radius: 4px; margin-top: 10px;">
-            ${message.replace(/\n/g, '<br>')}
-          </p>
-        </div>
-        <p style="color: #64748b; font-size: 12px;">
-          This email was sent from the ERP contact form.
+  const emailHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #0f172a;">New Contact Request</h2>
+      <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+        <p><strong>Message:</strong></p>
+        <p style="background: white; padding: 15px; border-radius: 4px; margin-top: 10px;">
+          ${message.replace(/\n/g, '<br>')}
         </p>
       </div>
-    `
-  })
+      <p style="color: #64748b; font-size: 12px;">
+        This email was sent from the ERP contact form.
+      </p>
+    </div>
+  `
 
   try {
-    console.log('📧 Sending email via Brevo API...')
-    console.log('   From: ERP Contact <dragdroperp@gmail.com>')
+    console.log('📧 Sending email via Resend API...')
+    console.log('   From: ERP Contact <noreply@resend.dev>')
     console.log('   To: dragdroperp@gmail.com')
     console.log('   Subject: New contact request')
 
-    const result = await brevoEmail.sendTransacEmail(sendSmtpEmail)
-    console.log('✅ Contact email sent successfully via Brevo API:', result.messageId)
+    const result = await resend.emails.send({
+      from: 'ERP Contact <noreply@resend.dev>',
+      to: ['dragdroperp@gmail.com'],
+      subject: 'New contact request',
+      html: emailHtml,
+    })
+
+    console.log('✅ Contact email sent successfully via Resend API:', result.data?.id)
     return result
   } catch (error) {
-    console.error('❌ Brevo email sending error:')
-    console.error('   Status:', error.response?.status)
-    console.error('   Status Text:', error.response?.statusText)
-    console.error('   Body:', error.response?.body)
+    console.error('❌ Resend email sending error:')
     console.error('   Message:', error.message)
+    console.error('   Status Code:', error.statusCode)
+    console.error('   Response:', error.response?.body)
 
     // Provide more specific error messages
-    if (error.response?.status === 401) {
-      throw new Error('Brevo API authentication failed. Please check your BREVO_API_KEY.')
-    } else if (error.response?.status === 403) {
-      throw new Error('Brevo API access forbidden. Please check your API key permissions and sender email verification.')
-    } else if (error.response?.status === 400) {
-      throw new Error('Invalid email request. Please check sender email is verified in Brevo.')
+    if (error.statusCode === 401) {
+      throw new Error('Resend API authentication failed. Please check your RESEND_API_KEY.')
+    } else if (error.statusCode === 403) {
+      throw new Error('Resend API access forbidden. Please check your API key permissions.')
+    } else if (error.statusCode === 400) {
+      throw new Error('Invalid email request. Please check the email format and content.')
     } else {
       throw new Error(`Failed to send email: ${error.message}`)
     }
