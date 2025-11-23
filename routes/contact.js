@@ -3,7 +3,7 @@ import { sendContactEmail } from '../email.js'
 
 export const contactRouter = express.Router()
 
-contactRouter.post('/contact', async (req, res) => {
+contactRouter.post('/submit', async (req, res) => {
   try {
     const { name, email, message } = req.body
 
