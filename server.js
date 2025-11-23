@@ -72,13 +72,13 @@ async function connectMongoDB() {
 // Email Service Check
 // -------------------------------
 function checkEmailService() {
-  const apiKey = process.env.BREVO_API_KEY
+  const apiKey = process.env.RESEND_API_KEY
   if (!apiKey || apiKey.trim() === '') {
-    console.warn('⚠️  BREVO_API_KEY environment variable is not set')
+    console.warn('⚠️  RESEND_API_KEY environment variable is not set')
     console.warn('   Email functionality will not work')
-    console.warn('   Set BREVO_API_KEY in your environment variables')
+    console.warn('   Set RESEND_API_KEY in your environment variables')
   } else {
-    console.log('✅ Brevo API key is configured')
+    console.log('✅ Resend API key is configured')
   }
 }
 
