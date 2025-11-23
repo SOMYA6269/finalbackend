@@ -24,12 +24,12 @@ contactRouter.post('/submit', async (req, res) => {
       })
     }
 
-    // Send email using Brevo API
+    // Send emails using Resend API (notification to company + thank-you to user)
     await sendContactEmail({ name, email, message })
 
     res.json({
       success: true,
-      message: 'Contact email sent successfully'
+      message: 'Contact emails sent successfully'
     })
   } catch (error) {
     console.error('Contact email error:', error.message)
