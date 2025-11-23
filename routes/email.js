@@ -42,7 +42,7 @@ emailRouter.post('/send-email', async (req, res) => {
 
     // Send email using Resend API with professional template
     const result = await resend.emails.send({
-      from: 'ERP Contact <noreply@mydomain.com>',
+      from: 'ERP Contact <noreply@draganddrop.in>',
       to: ['dragdroperp@gmail.com'],
       subject: 'New Contact Form Message - ERP Contact',
       html: `
