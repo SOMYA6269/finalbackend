@@ -10,7 +10,8 @@
     "check": "node check-setup.js",
     "build": "npm install --production=false && npm run check",
     "predeploy": "npm run check",
-    "test-email": "node test-email.js"
+    "test-email": "node test-email.js",
+    "test-resend": "node test-email.js"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -23,7 +24,7 @@
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "mongoose": "^8.19.4",
-    "sib-api-v3-sdk": "^8.5.0"
+    "resend": "^6.5.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
