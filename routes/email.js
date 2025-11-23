@@ -40,16 +40,33 @@ emailRouter.post('/send-email', async (req, res) => {
     // Initialize Resend client
     const resend = new Resend(apiKey.trim())
 
-    // Send email using Resend API
+    // Send email using Resend API with professional template
     const result = await resend.emails.send({
-      from: 'ERP Contact <noreply@resend.dev>',
+      from: 'ERP Contact <noreply@mydomain.com>',
       to: ['dragdroperp@gmail.com'],
-      subject: 'New Contact Form Message',
+      subject: 'New Contact Form Message - ERP Contact',
       html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong> ${message}</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>New Contact Message</title>
+        </head>
+        <body style="font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; background: #f8fafc;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h2 style="color: #0f172a; margin-bottom: 20px;">📬 New Contact Message</h2>
+                <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="margin: 0 0 10px 0;"><strong>👤 Name:</strong> ${name}</p>
+                    <p style="margin: 0 0 10px 0;"><strong>📧 Email:</strong> <a href="mailto:${email}" style="color: #3b82f6;">${email}</a></p>
+                    <p style="margin: 0 0 10px 0;"><strong>💬 Message:</strong></p>
+                    <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #0f172a;">
+                        ${message.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+                <p style="color: #64748b; font-size: 14px; margin: 0;">Sent from ERP Contact website</p>
+            </div>
+        </body>
+        </html>
       `
     })
 
