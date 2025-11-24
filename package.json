@@ -11,8 +11,7 @@
     "build": "npm install --production=false && npm run check",
     "predeploy": "npm run check",
     "test-email": "node test-email.js",
-    "test-resend": "node test-email.js",
-    "test-both": "node test-both-emails.js"
+    "test-resend": "node test-email.js"
   },
   "engines": {
     "node": ">=18.0.0",
