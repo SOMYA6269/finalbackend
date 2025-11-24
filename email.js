@@ -11,45 +11,57 @@ const createCompanyNotificationTemplate = ({ name, email, message }) => `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Contact Request - ERP Contact</title>
+    <style>
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 30px 40px; text-align: center; }
+        .logo { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 20px; border: 3px solid #ffffff; }
+        .content { padding: 40px; }
+        .info-box { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px; }
+        .field-label { display: inline-block; background: #0f172a; color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+        .field-value { font-size: 18px; font-weight: 600; color: #0f172a; margin-left: 8px; }
+        .message-box { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-left: 8px; font-size: 16px; line-height: 1.6; color: #374151; white-space: pre-line; }
+        .footer { text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; }
+        .footer-logo { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px; }
+        .brand-name { margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600; }
+        .brand-desc { margin: 0; color: #64748b; font-size: 14px; }
+    </style>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div class="email-container">
         <!-- Header with Logo -->
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 30px 40px; text-align: center;">
-            <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact Logo" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 20px; border: 3px solid #ffffff;">
+        <div class="header">
+            <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact Logo" class="logo" style="display: block; margin: 0 auto;">
             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">🔔 New Contact Request</h1>
-            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact - Professional Solutions</p>
+            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact - Professional ERP Solutions</p>
         </div>
 
         <!-- Content -->
-        <div style="padding: 40px;">
-            <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px;">
+        <div class="content">
+            <div class="info-box">
                 <h2 style="color: #0f172a; margin: 0 0 20px 0; font-size: 20px; font-weight: 600;">📋 Contact Details</h2>
 
                 <div style="margin-bottom: 20px;">
-                    <div style="display: inline-block; background: #0f172a; color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; margin-bottom: 8px;">👤 NAME</div>
-                    <div style="font-size: 18px; font-weight: 600; color: #0f172a; margin-left: 8px;">${name}</div>
+                    <div class="field-label">👤 NAME</div>
+                    <div class="field-value">${name}</div>
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <div style="display: inline-block; background: #0f172a; color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; margin-bottom: 8px;">📧 EMAIL</div>
-                    <div style="font-size: 18px; font-weight: 600; color: #0f172a; margin-left: 8px;">
+                    <div class="field-label">📧 EMAIL</div>
+                    <div class="field-value">
                         <a href="mailto:${email}" style="color: #0f172a; text-decoration: none; border-bottom: 2px solid #3b82f6;">${email}</a>
                     </div>
                 </div>
 
                 <div>
-                    <div style="display: inline-block; background: #0f172a; color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; margin-bottom: 8px;">💬 MESSAGE</div>
-                    <div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-left: 8px; font-size: 16px; line-height: 1.6; color: #374151; white-space: pre-line;">
-                        ${message}
-                    </div>
+                    <div class="field-label">💬 MESSAGE</div>
+                    <div class="message-box">${message}</div>
                 </div>
             </div>
 
-            <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
-                <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact" style="width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px;">
-                <p style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600;">ERP Contact</p>
-                <p style="margin: 0; color: #64748b; font-size: 14px;">
+            <div class="footer">
+                <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact Logo" class="footer-logo">
+                <p class="brand-name">ERP Contact</p>
+                <p class="brand-desc">
                     Professional ERP Solutions for Your Business<br>
                     <a href="https://draganddrop.in" style="color: #3b82f6; text-decoration: none;">www.draganddrop.in</a>
                 </p>
@@ -67,14 +79,38 @@ const createUserThankYouTemplate = ({ name }) => `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thank You for Contacting ERP Contact</title>
+    <style>
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 30px 40px; text-align: center; }
+        .logo { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 20px; border: 3px solid #ffffff; display: block; margin-left: auto; margin-right: auto; }
+        .content { padding: 40px; }
+        .welcome-text { text-align: center; margin-bottom: 30px; }
+        .welcome-icon { font-size: 64px; margin-bottom: 20px; }
+        .welcome-title { color: #0f172a; margin: 0 0 10px 0; font-size: 24px; font-weight: 600; }
+        .welcome-message { color: #64748b; font-size: 16px; margin: 0; }
+        .info-box { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px; }
+        .section-title { color: #0f172a; margin: 0 0 20px 0; font-size: 18px; font-weight: 600; }
+        .step { display: flex; align-items: center; margin-bottom: 15px; }
+        .step-number { background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 15px; }
+        .step-title { font-weight: 600; color: #0f172a; margin-bottom: 4px; }
+        .step-desc { color: #64748b; font-size: 14px; margin: 0; }
+        .footer { text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; }
+        .footer-logo { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 10px; }
+        .footer-title { margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600; }
+        .footer-text { margin: 0; color: #64748b; font-size: 14px; }
+        .brand-footer { background: #0f172a; padding: 20px; text-align: center; }
+        .brand-footer-logo { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #ffffff; }
+        .brand-footer-name { margin: 0 0 5px 0; color: #cbd5e1; font-size: 16px; font-weight: 600; }
+        .brand-footer-desc { margin: 0; color: #cbd5e1; font-size: 14px; }
+    </style>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+    <div class="email-container">
         <!-- Header with Logo -->
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 30px 40px; text-align: center;">
-            <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact Logo" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 20px; border: 3px solid #ffffff;">
+        <div class="header">
+            <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact Logo" class="logo">
             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">🙏 Thank You for Reaching Out</h1>
-            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact - Professional Solutions</p>
+            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact - Professional ERP Solutions</p>
         </div>
 
         <!-- Content -->
@@ -191,8 +227,16 @@ export async function sendContactEmail({ name, email, message }) {
       const companyResult = await resend.emails.send({
         from: `ERP Contact <${senderEmail}>`,
         to: ['dragdroperp@gmail.com'],
-        subject: 'New Contact Request - ERP Contact',
+        subject: '📬 New Contact Inquiry - ERP Contact Website',
         html: createCompanyNotificationTemplate({ name, email, message }),
+        text: `New Contact Inquiry
+
+Name: ${name}
+Email: ${email}
+Message: ${message}
+
+This contact form submission was sent from the ERP Contact website.`,
+        reply_to: 'dragdroperp@gmail.com'
       })
 
       // Check if there was an error in the response
@@ -215,12 +259,30 @@ export async function sendContactEmail({ name, email, message }) {
         console.log('      To:', email)
         console.log('      Note: If this goes to spam, user should check spam folder')
 
-        const userResult = await resend.emails.send({
-          from: `ERP Contact <${senderEmail}>`,
-          to: [email],
-          subject: 'Thank You for Contacting ERP Contact',
-          html: createUserThankYouTemplate({ name }),
-        })
+      const userResult = await resend.emails.send({
+        from: `ERP Contact <${senderEmail}>`,
+        to: [email],
+        subject: '🙏 Thank You for Contacting ERP Contact',
+        html: createUserThankYouTemplate({ name }),
+        text: `Thank You for Contacting ERP Contact
+
+Hi ${name},
+
+We've received your message and appreciate your interest in ERP Contact!
+
+What happens next:
+1. Review your inquiry - Our team will carefully review your message within 24 hours
+2. Contact you back - We'll respond with solutions tailored to your needs
+3. Discuss your needs - Help you find the perfect ERP solution for your business
+
+Questions? Contact us directly:
+Email: dragdroperp@gmail.com
+Website: https://draganddrop.in
+
+Best regards,
+ERP Contact Team`,
+        reply_to: 'dragdroperp@gmail.com'
+      })
 
         // Check if there was an error in the response
         if (userResult.error) {
