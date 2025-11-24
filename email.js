@@ -1,372 +1,175 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
 
 dotenv.config()
 
-// Professional email templates with ERP Contact branding and logo
-const createCompanyNotificationTemplate = ({ name, email, message }) => `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Contact Request - ERP Contact</title>
-    <style>
-        .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 30px 40px; text-align: center; }
-        .logo { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 20px; border: 3px solid #ffffff; }
-        .content { padding: 40px; }
-        .info-box { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px; }
-        .field-label { display: inline-block; background: #0f172a; color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
-        .field-value { font-size: 18px; font-weight: 600; color: #0f172a; margin-left: 8px; }
-        .message-box { background: #ffffff; border: 2px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-left: 8px; font-size: 16px; line-height: 1.6; color: #374151; white-space: pre-line; }
-        .footer { text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; }
-        .footer-logo { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 10px; }
-        .brand-name { margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600; }
-        .brand-desc { margin: 0; color: #64748b; font-size: 14px; }
-    </style>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
-    <div class="email-container">
-        <!-- Header with Logo -->
-        <div class="header">
-            <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact Logo" class="logo" style="display: block; margin: 0 auto;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">🔔 New Contact Request</h1>
-            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact - Professional ERP Solutions</p>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <div class="info-box">
-                <h2 style="color: #0f172a; margin: 0 0 20px 0; font-size: 20px; font-weight: 600;">📋 Contact Details</h2>
-
-                <div style="margin-bottom: 20px;">
-                    <div class="field-label">👤 NAME</div>
-                    <div class="field-value">${name}</div>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <div class="field-label">📧 EMAIL</div>
-                    <div class="field-value">
-                        <a href="mailto:${email}" style="color: #0f172a; text-decoration: none; border-bottom: 2px solid #3b82f6;">${email}</a>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="field-label">💬 MESSAGE</div>
-                    <div class="message-box">${message}</div>
-                </div>
-            </div>
-
-            <div class="footer">
-                <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact Logo" class="footer-logo">
-                <p class="brand-name">ERP Contact</p>
-                <p class="brand-desc">
-                    Professional ERP Solutions for Your Business<br>
-                    <a href="https://draganddrop.in" style="color: #3b82f6; text-decoration: none;">www.draganddrop.in</a>
-                </p>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
-`;
-
-const createUserThankYouTemplate = ({ name }) => `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank You for Contacting ERP Contact</title>
-    <style>
-        .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .header { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 30px 40px; text-align: center; }
-        .logo { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 20px; border: 3px solid #ffffff; display: block; margin-left: auto; margin-right: auto; }
-        .content { padding: 40px; }
-        .welcome-text { text-align: center; margin-bottom: 30px; }
-        .welcome-icon { font-size: 64px; margin-bottom: 20px; }
-        .welcome-title { color: #0f172a; margin: 0 0 10px 0; font-size: 24px; font-weight: 600; }
-        .welcome-message { color: #64748b; font-size: 16px; margin: 0; }
-        .info-box { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px; }
-        .section-title { color: #0f172a; margin: 0 0 20px 0; font-size: 18px; font-weight: 600; }
-        .step { display: flex; align-items: center; margin-bottom: 15px; }
-        .step-number { background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 15px; }
-        .step-title { font-weight: 600; color: #0f172a; margin-bottom: 4px; }
-        .step-desc { color: #64748b; font-size: 14px; margin: 0; }
-        .footer { text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px; }
-        .footer-logo { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 10px; }
-        .footer-title { margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600; }
-        .footer-text { margin: 0; color: #64748b; font-size: 14px; }
-        .brand-footer { background: #0f172a; padding: 20px; text-align: center; }
-        .brand-footer-logo { width: 40px; height: 40px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #ffffff; }
-        .brand-footer-name { margin: 0 0 5px 0; color: #cbd5e1; font-size: 16px; font-weight: 600; }
-        .brand-footer-desc { margin: 0; color: #cbd5e1; font-size: 14px; }
-    </style>
-</head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
-    <div class="email-container">
-        <!-- Header with Logo -->
-        <div class="header">
-            <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact Logo" class="logo">
-            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">🙏 Thank You for Reaching Out</h1>
-            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact - Professional ERP Solutions</p>
-        </div>
-
-        <!-- Content -->
-        <div style="padding: 40px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <div style="font-size: 64px; margin-bottom: 20px;">📬</div>
-                <h2 style="color: #0f172a; margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">Message Received!</h2>
-                <p style="color: #64748b; font-size: 16px; margin: 0;">Hi ${name}, we've received your message and appreciate your interest in ERP Contact!</p>
-            </div>
-
-            <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px;">
-                <h3 style="color: #0f172a; margin: 0 0 20px 0; font-size: 18px; font-weight: 600;">🚀 What happens next?</h3>
-
-                <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                    <div style="background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 15px;">1</div>
-                    <div>
-                        <div style="font-weight: 600; color: #0f172a;">Review your inquiry</div>
-                        <div style="color: #64748b; font-size: 14px;">Our team will carefully review your message within 24 hours</div>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                    <div style="background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 15px;">2</div>
-                    <div>
-                        <div style="font-weight: 600; color: #0f172a;">Contact you back</div>
-                        <div style="color: #64748b; font-size: 14px;">We'll respond with solutions tailored to your needs</div>
-                    </div>
-                </div>
-
-                <div style="display: flex; align-items: center;">
-                    <div style="background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 15px;">3</div>
-                    <div>
-                        <div style="font-weight: 600; color: #0f172a;">Discuss your needs</div>
-                        <div style="color: #64748b; font-size: 14px;">Help you find the perfect ERP solution for your business</div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
-                <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact" style="width: 40px; height: 40px; border-radius: 50%; margin-bottom: 10px;">
-                <p style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600;">Questions? Contact ERP Contact directly</p>
-                <p style="margin: 0; color: #64748b; font-size: 14px;">
-                    Email: <a href="mailto:dragdroperp@gmail.com" style="color: #3b82f6; text-decoration: none;">dragdroperp@gmail.com</a><br>
-                    Website: <a href="https://draganddrop.in" style="color: #3b82f6; text-decoration: none;">www.draganddrop.in</a>
-                </p>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div style="background: #0f172a; padding: 20px; text-align: center;">
-            <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact" style="width: 40px; height: 40px; border-radius: 50%; margin-bottom: 10px; border: 2px solid #ffffff;">
-            <p style="margin: 0 0 5px 0; color: #cbd5e1; font-size: 16px; font-weight: 600;">ERP Contact</p>
-            <p style="margin: 0; color: #cbd5e1; font-size: 14px;">
-                © 2024 ERP Contact. All rights reserved.<br>
-                <span style="font-size: 12px;">Empowering businesses with innovative ERP solutions</span>
-            </p>
-        </div>
-    </div>
-</body>
-</html>
-`;
-
 /**
- * Send contact emails using Resend API
- * Sends both company notification and user thank-you emails with professional branding
+ * Send contact emails using Gmail SMTP with Nodemailer
  * @param {Object} contactData - Contact form data
  * @param {string} contactData.name - Contact name
  * @param {string} contactData.email - Contact email
  * @param {string} contactData.message - Contact message
  */
 export async function sendContactEmail({ name, email, message }) {
-  // Get API key from environment
-  const apiKey = process.env.RESEND_API_KEY
+  // Validate environment variables
+  const gmailUser = process.env.GMAIL_USER
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD
 
-  if (!apiKey || apiKey.trim() === '') {
-    console.error('❌ RESEND_API_KEY environment variable is not set')
-    throw new Error('Resend API key is not configured')
+  if (!gmailUser || !gmailAppPassword) {
+    console.error('❌ Gmail SMTP credentials not configured')
+    throw new Error('Gmail SMTP credentials are not configured')
   }
 
-  // Initialize Resend client
-  const resend = new Resend(apiKey.trim())
+  // Create Gmail SMTP transporter
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: gmailUser,
+      pass: gmailAppPassword
+    }
+  })
 
   try {
-    console.log('📧 [PRODUCTION] Sending contact emails via Resend API...')
+    console.log('📧 [PRODUCTION] Sending contact emails via Gmail SMTP...')
     console.log('   User:', name, '<' + email + '>')
     console.log('   Message length:', message.length, 'characters')
     console.log('   Timestamp:', new Date().toISOString())
 
-    let companyEmailResult = null
-    let userEmailResult = null
-    let errors = []
+    // 1. Send notification email to company
+    console.log('   📤 Sending notification to company...')
+    console.log('      From: ERP Contact <' + gmailUser + '>')
+    console.log('      To: dragdroperp@gmail.com')
 
-    // Use verified domain for better deliverability and external email sending
-    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN === 'true'
-    const verifiedSender = process.env.RESEND_SENDER || 'noreply@draganddrop.in'
-    const senderEmail = useVerifiedDomain ? verifiedSender : 'noreply@resend.dev'
+    const companyMailOptions = {
+      from: `ERP Contact <${gmailUser}>`,
+      to: 'dragdroperp@gmail.com',
+      subject: 'New Contact Form Submission - ERP Contact',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #0f172a;">🔔 New Contact Request</h2>
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>👤 Name:</strong> ${name}</p>
+            <p><strong>📧 Email:</strong> <a href="mailto:${email}">${email}</a></p>
+            <p><strong>💬 Message:</strong></p>
+            <div style="background: white; padding: 15px; border-radius: 4px; border-left: 4px solid #0f172a;">
+              ${message.replace(/\n/g, '<br>')}
+            </div>
+            <p style="color: #64748b; font-size: 12px; margin-top: 20px;">
+              Sent: ${new Date().toISOString()}
+            </p>
+          </div>
+        </div>
+      `,
+      text: `New Contact Request
 
-    console.log('   📧 Using sender domain:', senderEmail)
-    console.log('   📧 Domain verification:', useVerifiedDomain ? 'ENABLED (draganddrop.in)' : 'DISABLED (resend.dev)')
+Name: ${name}
+Email: ${email}
+Message: ${message}
 
-    if (useVerifiedDomain) {
-      console.log('   ✅ Verified domain active - thank-you emails will be sent to users')
-    } else {
-      console.log('   ℹ️  Using resend.dev - thank-you emails skipped (domain not verified)')
+Sent: ${new Date().toISOString()}`
     }
 
-    // Send notification email to company
-    try {
-      console.log('   📤 Sending notification to company...')
-      console.log('      From: ERP Contact <' + senderEmail + '>')
-      console.log('      To: dragdroperp@gmail.com')
+    const companyResult = await transporter.sendMail(companyMailOptions)
+    console.log('   ✅ Company notification sent successfully:', companyResult.messageId)
 
-      const companyResult = await resend.emails.send({
-        from: `ERP Contact <${senderEmail}>`,
-        to: ['dragdroperp@gmail.com'],
-        subject: '📬 New Contact Form Submission - ERP Contact',
-        html: createCompanyNotificationTemplate({ name, email, message }),
-        text: `New Contact Form Submission - ERP Contact
+    // 2. Send thank-you email to user
+    console.log('   📤 Sending thank-you to user...')
+    console.log('      From: ERP Contact <' + gmailUser + '>')
+    console.log('      To:', email)
 
-Customer Details:
-• Name: ${name}
-• Email: ${email}
-• Message: ${message}
+    const userMailOptions = {
+      from: `ERP Contact <${gmailUser}>`,
+      to: email,
+      subject: 'Thank you for contacting us',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #0f172a;">🙏 Thank You for Contacting Us</h2>
 
-This inquiry was submitted through the ERP Contact website contact form.
+          <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); padding: 30px; border-radius: 8px; margin: 20px 0;">
+            <p style="font-size: 16px; margin-bottom: 20px;">
+              Hi <strong>${name}</strong>,
+            </p>
 
-Please respond within 24 hours for best customer experience.`,
-        reply_to: email, // Reply directly to the customer
-        headers: {
-          'List-Unsubscribe': `<mailto:unsubscribe@draganddrop.in?subject=Unsubscribe>`,
-          'X-Customer-Email': email,
-          'X-Source': 'ERP Contact Website'
-        }
-      })
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+              Thank you for reaching out to us! We've received your message and appreciate your interest in our services.
+            </p>
 
-      // Check if there was an error in the response
-      if (companyResult.error) {
-        throw new Error(`Resend API error: ${companyResult.error.message}`)
-      }
+            <div style="background: #10b981; color: white; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <h3 style="margin: 0 0 10px 0; font-size: 18px;">🚀 What happens next?</h3>
+              <ul style="margin: 0; padding-left: 20px;">
+                <li>Our team will review your inquiry within 24 hours</li>
+                <li>We'll contact you back with tailored solutions</li>
+                <li>Together we'll find the perfect solution for your needs</li>
+              </ul>
+            </div>
 
-      companyEmailResult = companyResult.data?.id || companyResult.id || 'sent'
-      console.log('   ✅ Company notification sent successfully:', companyEmailResult)
-    } catch (companyError) {
-      console.error('   ❌ Company notification failed:', companyError.message)
-      errors.push('Company notification: ' + companyError.message)
-    }
+            <p style="font-size: 16px; margin-top: 20px;">
+              If you have any questions in the meantime, feel free to reply to this email.
+            </p>
 
-    // Send thank-you email to user (only if domain verified, otherwise skip)
-    if (useVerifiedDomain) {
-      try {
-        console.log('   📤 Sending thank-you to user...')
-        console.log('      From: ERP Contact <' + senderEmail + '>')
-        console.log('      To:', email)
-        console.log('      Note: If this goes to spam, user should check spam folder')
+            <p style="font-size: 16px;">
+              Best regards,<br>
+              <strong>The ERP Contact Team</strong>
+            </p>
+          </div>
 
-      const userResult = await resend.emails.send({
-        from: `ERP Contact <${senderEmail}>`,
-        to: [email],
-        subject: '🙏 Thank You for Your ERP Contact Inquiry',
-        html: createUserThankYouTemplate({ name }),
-        text: `Thank You for Your ERP Contact Inquiry
+          <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+            <p style="color: #64748b; font-size: 14px;">
+              ERP Contact | Professional ERP Solutions<br>
+              Email: <a href="mailto:dragdroperp@gmail.com">dragdroperp@gmail.com</a> |
+              Website: <a href="https://draganddrop.in">draganddrop.in</a>
+            </p>
+          </div>
+        </div>
+      `,
+      text: `Thank You for Contacting Us
 
 Hi ${name},
 
-Thank you for reaching out to ERP Contact! We've received your message and are excited to help you with your business needs.
+Thank you for reaching out to us! We've received your message and appreciate your interest in our services.
 
-What happens next:
-1. 📋 Review your inquiry - Our team will carefully review your message within 24 hours
-2. 📞 Contact you back - We'll respond with tailored solutions for your needs
-3. 💼 Discuss your requirements - Help you find the perfect ERP solution
+What happens next?
+• Our team will review your inquiry within 24 hours
+• We'll contact you back with tailored solutions
+• Together we'll find the perfect solution for your needs
 
-We're here to support your business growth with professional ERP solutions.
-
-Questions? Feel free to reply to this email or contact us directly:
-📧 Email: dragdroperp@gmail.com
-🌐 Website: https://draganddrop.in
+If you have any questions in the meantime, feel free to reply to this email.
 
 Best regards,
 The ERP Contact Team
-Professional ERP Solutions for Your Business`,
-        reply_to: 'dragdroperp@gmail.com',
-        headers: {
-          'List-Unsubscribe': `<mailto:unsubscribe@draganddrop.in?subject=Unsubscribe>`,
-          'X-Auto-Response': 'yes',
-          'X-Source': 'ERP Contact Website'
-        }
-      })
 
-        // Check if there was an error in the response
-        if (userResult.error) {
-          console.warn('   ⚠️ User email API error (but continuing):', userResult.error.message)
-          userEmailResult = null // Mark as failed but continue
-        } else {
-          userEmailResult = userResult.data?.id || userResult.id || 'sent'
-          console.log('   ✅ Thank-you email sent successfully:', userEmailResult)
-          console.log('   📧 User should check inbox AND spam folder')
-        }
-      } catch (userError) {
-        console.error('   ❌ Thank-you email failed:', userError.message)
-        console.error('   📧 This might be due to:')
-        console.error('      - Domain reputation issues')
-        console.error('      - User email server filtering')
-
-        errors.push('Thank-you email: ' + userError.message)
-      }
-    } else {
-      console.log('   ⚠️ Skipping thank-you email - domain not verified')
-      console.log('   📧 To enable thank-you emails: verify draganddrop.in domain')
-      console.log('   📧 Set USE_VERIFIED_DOMAIN=true after verification')
+---
+ERP Contact | Professional ERP Solutions
+Email: dragdroperp@gmail.com | Website: draganddrop.in`
     }
 
-    // For production: prioritize company notification
-    // If company email failed, this is critical - throw error
-    if (!companyEmailResult) {
-      throw new Error('Unable to send company notification. Please try again later.')
-    }
+    const userResult = await transporter.sendMail(userMailOptions)
+    console.log('   ✅ Thank-you email sent successfully:', userResult.messageId)
 
-    // User thank-you email failure is logged but doesn't fail the request
-    if (!userEmailResult && useVerifiedDomain) {
-      console.warn('⚠️  [PRODUCTION] Thank-you email failed, but company notification sent')
-      console.warn('   Possible reasons:')
-      console.warn('   - Email going to spam folder')
-      console.warn('   - Domain reputation issues')
-      console.warn('   - User email address issues')
-      if (errors.length > 0) {
-        console.warn('   Errors:', errors.join(', '))
-      }
-    } else if (useVerifiedDomain) {
-      console.log('🎉 [PRODUCTION] Both emails sent successfully!')
-      console.log('   📧 Company notification: Sent')
-      console.log('   🙏 User thank-you: Sent')
-    } else {
-      console.log('✅ [PRODUCTION] Company notification sent successfully')
-      console.log('   📧 User thank-you: Skipped (domain not verified)')
-    }
+    console.log('🎉 [PRODUCTION] Both emails sent successfully!')
+    console.log('   📧 Company notification: Sent')
+    console.log('   🙏 User thank-you: Sent')
 
     return {
-      companyEmail: companyEmailResult,
-      userEmail: userEmailResult,
-      success: true,
-      partialSuccess: errors.length > 0
+      companyEmail: companyResult.messageId,
+      userEmail: userResult.messageId,
+      success: true
     }
 
   } catch (error) {
-    console.error('❌ Resend email sending error:')
+    console.error('❌ Gmail SMTP email sending error:')
     console.error('   Message:', error.message)
-    console.error('   Status Code:', error.statusCode)
-    console.error('   Response:', error.response?.body)
+    console.error('   Code:', error.code)
 
-    // Provide more specific error messages
-    if (error.statusCode === 401) {
-      throw new Error('Resend API authentication failed. Please check your RESEND_API_KEY.')
-    } else if (error.statusCode === 403) {
-      throw new Error('Resend API access forbidden. Please check your API key permissions.')
-    } else if (error.statusCode === 400) {
-      throw new Error('Invalid email request. Please check the email format and content.')
+    // Provide specific error messages for Gmail SMTP issues
+    if (error.code === 'EAUTH') {
+      throw new Error('Gmail authentication failed. Please check your GMAIL_USER and GMAIL_APP_PASSWORD.')
+    } else if (error.code === 'ECONNECTION') {
+      throw new Error('Gmail SMTP connection failed. Please check your internet connection.')
+    } else if (error.code === 'ETIMEDOUT') {
+      throw new Error('Gmail SMTP connection timed out. Please try again.')
     } else {
       throw new Error(`Failed to send email: ${error.message}`)
     }
