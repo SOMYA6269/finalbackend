@@ -9,7 +9,7 @@ async function testContactForm() {
 
   const testData = {
     name: 'Test User',
-    email: 'test@example.com', // This email won't receive anything, it's just for testing
+    email: 'dragdroperp@gmail.com', // Use your own email to test both sending and receiving
     message: 'This is a test message from the contact form. Please ignore this email.'
   }
 
