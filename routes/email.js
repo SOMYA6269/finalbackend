@@ -38,15 +38,22 @@ emailRouter.post('/send-email', async (req, res) => {
       })
     }
 
-    // Create Gmail SMTP transporter
+    // Create Gmail SMTP transporter with improved settings
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      port: 465,
+      secure: true, // Use SSL instead of STARTTLS
       auth: {
         user: gmailUser,
         pass: gmailAppPassword
-      }
+      },
+      // Add timeout and connection settings for better reliability
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 5000,   // 5 seconds
+      socketTimeout: 10000,    // 10 seconds
+      // Enable debugging for troubleshooting
+      debug: process.env.NODE_ENV !== 'production',
+      logger: process.env.NODE_ENV !== 'production'
     })
 
     // Send email using Gmail SMTP
