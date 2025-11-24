@@ -24,29 +24,12 @@ contactRouter.post('/submit', async (req, res) => {
       })
     }
 
-    // Send emails using Resend API (notification to company + thank-you to user if domain verified)
-    const emailResult = await sendContactEmail({ name, email, message })
-
-    // For production: return success as long as company notification was sent
-    // User thank-you email is a nice-to-have but not critical
-    const success = !!emailResult.companyEmail
-
-    if (!success) {
-      throw new Error('Failed to send company notification email')
-    }
-
-    const responseMessage = emailResult.userEmail
-      ? 'Your message has been sent successfully! Check your email for confirmation from ERP Contact.'
-      : 'Your message has been sent successfully! We will get back to you soon.'
+    // Send email using Gmail SMTP
+    await sendContactEmail({ name, email, message })
 
     res.json({
       success: true,
-      message: responseMessage,
-      contactId: `contact_${Date.now()}`,
-      emailsSent: {
-        company: !!emailResult.companyEmail,
-        user: !!emailResult.userEmail
-      }
+      message: 'Contact email sent successfully'
     })
   } catch (error) {
     console.error('Contact email error:', error.message)
