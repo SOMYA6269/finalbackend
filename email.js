@@ -167,8 +167,9 @@ export async function sendContactEmail({ name, email, message }) {
     let userEmailResult = null
     let errors = []
 
-    // Use verified domain for production (required to send to external emails)
-    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN !== 'false' // Default to true for production
+    // Use resend.dev for reliable production (works without domain verification)
+    // Set USE_VERIFIED_DOMAIN=true ONLY after verifying draganddrop.in domain
+    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN === 'true' // Default to false for reliability
     const senderEmail = useVerifiedDomain ? 'noreply@draganddrop.in' : 'noreply@resend.dev'
 
     console.log('   📧 Using sender domain:', senderEmail)
@@ -177,6 +178,8 @@ export async function sendContactEmail({ name, email, message }) {
     if (useVerifiedDomain) {
       console.log('   ⚠️  IMPORTANT: Ensure draganddrop.in is verified in Resend dashboard')
       console.log('      If emails fail, set USE_VERIFIED_DOMAIN=false to use resend.dev fallback')
+    } else {
+      console.log('   ℹ️  Using resend.dev - reliable but limited to your email address only')
     }
 
     // Send notification email to company
