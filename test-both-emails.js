@@ -3,13 +3,13 @@
 import { sendContactEmail } from './email.js'
 
 async function testBothEmails() {
-  console.log('🧪 Testing both email sending functionality...')
+  console.log('🧪 Testing both email sending functionality with ERP Contact branding...')
 
   try {
     const result = await sendContactEmail({
       name: 'Test User',
       email: 'test@example.com',
-      message: 'This is a test message to verify both emails are sent with professional formatting and logo.'
+      message: 'This is a test message to verify both emails are sent with professional ERP Contact branding and ddfinal.png logo.'
     })
 
     console.log('✅ Test completed!')
@@ -18,14 +18,15 @@ async function testBothEmails() {
     console.log('   Partial success:', result.partialSuccess ? 'Yes' : 'No')
 
     if (result.companyEmail && result.userEmail) {
-      console.log('🎉 Both emails sent successfully with professional formatting!')
+      console.log('🎉 Both emails sent successfully with ERP Contact branding!')
       console.log('   📧 Company notification sent to dragdroperp@gmail.com')
       console.log('   🙏 Thank-you email sent to test@example.com')
       console.log('   🖼️  Both emails include ddfinal.png logo')
+      console.log('   🏷️  Both emails branded as "ERP Contact"')
     } else if (result.companyEmail) {
       console.log('⚠️  Company email sent, but thank-you email failed')
       console.log('   📧 Company notification: SUCCESS')
-      console.log('   🙏 Thank-you email: FAILED')
+      console.log('   🙏 Thank-you email: FAILED (check spam folder)')
     } else {
       console.log('❌ Both emails failed - check API key and domain setup')
     }
