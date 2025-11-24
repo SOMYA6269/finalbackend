@@ -167,8 +167,8 @@ export async function sendContactEmail({ name, email, message }) {
     let userEmailResult = null
     let errors = []
 
-    // Use resend.dev for testing (verified domains may fail if not set up)
-    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN === 'true' // Default to false for testing
+    // Use verified domain for production (required to send to external emails)
+    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN !== 'false' // Default to true for production
     const senderEmail = useVerifiedDomain ? 'noreply@draganddrop.in' : 'noreply@resend.dev'
 
     console.log('   📧 Using sender domain:', senderEmail)
@@ -204,38 +204,42 @@ export async function sendContactEmail({ name, email, message }) {
       errors.push('Company notification: ' + companyError.message)
     }
 
-    // Send thank-you email to user (always attempt, even if company email failed)
-    try {
-      console.log('   📤 Sending thank-you to user...')
-      console.log('      From: ERP Contact <' + senderEmail + '>')
-      console.log('      To:', email)
-      console.log('      Note: If this goes to spam, user should check spam folder')
+    // Send thank-you email to user (only if domain verified, otherwise skip)
+    if (useVerifiedDomain) {
+      try {
+        console.log('   📤 Sending thank-you to user...')
+        console.log('      From: ERP Contact <' + senderEmail + '>')
+        console.log('      To:', email)
+        console.log('      Note: If this goes to spam, user should check spam folder')
 
-      const userResult = await resend.emails.send({
-        from: `ERP Contact <${senderEmail}>`,
-        to: [email],
-        subject: 'Thank You for Contacting ERP Contact',
-        html: createUserThankYouTemplate({ name }),
-      })
+        const userResult = await resend.emails.send({
+          from: `ERP Contact <${senderEmail}>`,
+          to: [email],
+          subject: 'Thank You for Contacting ERP Contact',
+          html: createUserThankYouTemplate({ name }),
+        })
 
-      // Check if there was an error in the response
-      if (userResult.error) {
-        console.warn('   ⚠️ User email API error (but continuing):', userResult.error.message)
-        userEmailResult = null // Mark as failed but continue
-      } else {
-        userEmailResult = userResult.data?.id || userResult.id || 'sent'
-        console.log('   ✅ Thank-you email sent successfully:', userEmailResult)
-        console.log('   📧 User should check inbox AND spam folder')
+        // Check if there was an error in the response
+        if (userResult.error) {
+          console.warn('   ⚠️ User email API error (but continuing):', userResult.error.message)
+          userEmailResult = null // Mark as failed but continue
+        } else {
+          userEmailResult = userResult.data?.id || userResult.id || 'sent'
+          console.log('   ✅ Thank-you email sent successfully:', userEmailResult)
+          console.log('   📧 User should check inbox AND spam folder')
+        }
+      } catch (userError) {
+        console.error('   ❌ Thank-you email failed:', userError.message)
+        console.error('   📧 This might be due to:')
+        console.error('      - Domain reputation issues')
+        console.error('      - User email server filtering')
+
+        errors.push('Thank-you email: ' + userError.message)
       }
-
-    } catch (userError) {
-      console.error('   ❌ Thank-you email failed:', userError.message)
-      console.error('   📧 This might be due to:')
-      console.error('      - Email going to spam (most common)')
-      console.error('      - Domain reputation issues')
-      console.error('      - User email server filtering')
-
-      errors.push('Thank-you email: ' + userError.message)
+    } else {
+      console.log('   ⚠️ Skipping thank-you email - domain not verified')
+      console.log('   📧 To enable thank-you emails: verify draganddrop.in domain')
+      console.log('   📧 Set USE_VERIFIED_DOMAIN=true after verification')
     }
 
     // For production: prioritize company notification
