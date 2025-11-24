@@ -1,10 +1,10 @@
 import express from 'express'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import { sendContactEmail } from '../email.js'
 
 export const emailRouter = express.Router()
 
-// Send email endpoint using Resend API
+// Send email endpoint using Gmail SMTP
 emailRouter.post('/send-email', async (req, res) => {
   try {
     const { name, email, message } = req.body
@@ -26,45 +26,68 @@ emailRouter.post('/send-email', async (req, res) => {
       })
     }
 
-    // Check if RESEND_API_KEY is configured
-    const apiKey = process.env.RESEND_API_KEY
-    if (!apiKey || apiKey.trim() === '') {
-      console.error('❌ RESEND_API_KEY environment variable is not set or empty')
+    // Check if Gmail credentials are configured
+    const gmailUser = process.env.GMAIL_USER
+    const gmailAppPassword = process.env.GMAIL_APP_PASSWORD
+    if (!gmailUser || !gmailAppPassword) {
+      console.error('❌ Gmail SMTP credentials not configured')
       return res.status(500).json({
         success: false,
         error: 'Email service not configured',
-        details: 'RESEND_API_KEY environment variable is missing'
+        details: 'GMAIL_USER and GMAIL_APP_PASSWORD environment variables are missing'
       })
     }
 
-    // Initialize Resend client
-    const resend = new Resend(apiKey.trim())
-
-    // Send email using Resend API
-    const result = await resend.emails.send({
-      from: 'ERP Contact <noreply@resend.dev>',
-      to: ['dragdroperp@gmail.com'],
-      subject: 'New Contact Form Message',
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong> ${message}</p>
-      `
+    // Create Gmail SMTP transporter
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: gmailUser,
+        pass: gmailAppPassword
+      }
     })
 
-    console.log('✅ Email sent successfully via Resend API:', result.data?.id)
+    // Send email using Gmail SMTP
+    const mailOptions = {
+      from: `ERP Contact <${gmailUser}>`,
+      to: 'dragdroperp@gmail.com',
+      subject: 'New Contact Form Message',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #0f172a;">New Contact Form Submission</h2>
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>👤 Name:</strong> ${name}</p>
+            <p><strong>📧 Email:</strong> <a href="mailto:${email}">${email}</a></p>
+            <p><strong>💬 Message:</strong></p>
+            <div style="background: white; padding: 15px; border-radius: 4px; border-left: 4px solid #0f172a;">
+              ${message.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+        </div>
+      `,
+      text: `New Contact Form Submission
+
+Name: ${name}
+Email: ${email}
+Message: ${message}`
+    }
+
+    const result = await transporter.sendMail(mailOptions)
+
+    console.log('✅ Email sent successfully via Gmail SMTP:', result.messageId)
     res.json({
       success: true,
       message: 'Email sent successfully',
-      emailId: result.data?.id
+      messageId: result.messageId
     })
   } catch (error) {
     console.error('❌ Send email error:', error.message)
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to send email',
-      details: 'Make sure RESEND_API_KEY is configured correctly'
+      details: 'Make sure GMAIL_USER and GMAIL_APP_PASSWORD are configured correctly'
     })
   }
 })
@@ -98,8 +121,8 @@ emailRouter.post('/test', async (req, res) => {
       success: true,
       message: 'Test email sent successfully!',
       details: {
-        to: 'dragdroperp@gmail.com',
-        subject: 'New contact request',
+        companyEmail: 'dragdroperp@gmail.com',
+        userEmail: email,
         sent: new Date().toISOString()
       }
     })
@@ -108,28 +131,29 @@ emailRouter.post('/test', async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to send test email',
-      details: 'Make sure RESEND_API_KEY is configured in .env'
+      details: 'Make sure GMAIL_USER and GMAIL_APP_PASSWORD are configured in .env'
     })
   }
 })
 
 // Check email configuration
 emailRouter.get('/config', (req, res) => {
-  const apiKey = process.env.RESEND_API_KEY
-  const isConfigured = !!(apiKey && apiKey.trim())
+  const gmailUser = process.env.GMAIL_USER
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD
+  const isConfigured = !!(gmailUser && gmailAppPassword)
 
   res.json({
     success: true,
     configured: isConfigured,
-    service: 'Resend (API)',
-    senderEmail: 'noreply@resend.dev',
+    service: 'Gmail SMTP',
+    senderEmail: gmailUser || 'not-configured',
     senderName: 'ERP Contact',
     contactEmail: 'dragdroperp@gmail.com',
-    apiKeyConfigured: isConfigured,
-    apiKeyLength: apiKey ? apiKey.length : 0,
+    gmailUserConfigured: !!gmailUser,
+    gmailAppPasswordConfigured: !!gmailAppPassword,
     message: isConfigured
-      ? 'Resend email service is configured and ready'
-      : 'Email service is not configured. Add RESEND_API_KEY to .env'
+      ? 'Gmail SMTP email service is configured and ready'
+      : 'Email service is not configured. Add GMAIL_USER and GMAIL_APP_PASSWORD to .env'
   })
 })
 
