@@ -203,19 +203,18 @@ export async function sendContactEmail({ name, email, message }) {
     let userEmailResult = null
     let errors = []
 
-    // Use resend.dev for reliable production (works without domain verification)
-    // Set USE_VERIFIED_DOMAIN=true ONLY after verifying draganddrop.in domain
-    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN === 'true' // Default to false for reliability
-    const senderEmail = useVerifiedDomain ? 'noreply@draganddrop.in' : 'noreply@resend.dev'
+    // Use verified domain for better deliverability and external email sending
+    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN === 'true'
+    const verifiedSender = process.env.RESEND_SENDER || 'noreply@draganddrop.in'
+    const senderEmail = useVerifiedDomain ? verifiedSender : 'noreply@resend.dev'
 
     console.log('   📧 Using sender domain:', senderEmail)
     console.log('   📧 Domain verification:', useVerifiedDomain ? 'ENABLED (draganddrop.in)' : 'DISABLED (resend.dev)')
 
     if (useVerifiedDomain) {
-      console.log('   ⚠️  IMPORTANT: Ensure draganddrop.in is verified in Resend dashboard')
-      console.log('      If emails fail, set USE_VERIFIED_DOMAIN=false to use resend.dev fallback')
+      console.log('   ✅ Verified domain active - thank-you emails will be sent to users')
     } else {
-      console.log('   ℹ️  Using resend.dev - reliable but limited to your email address only')
+      console.log('   ℹ️  Using resend.dev - thank-you emails skipped (domain not verified)')
     }
 
     // Send notification email to company
@@ -227,16 +226,24 @@ export async function sendContactEmail({ name, email, message }) {
       const companyResult = await resend.emails.send({
         from: `ERP Contact <${senderEmail}>`,
         to: ['dragdroperp@gmail.com'],
-        subject: '📬 New Contact Inquiry - ERP Contact Website',
+        subject: '📬 New Contact Form Submission - ERP Contact',
         html: createCompanyNotificationTemplate({ name, email, message }),
-        text: `New Contact Inquiry
+        text: `New Contact Form Submission - ERP Contact
 
-Name: ${name}
-Email: ${email}
-Message: ${message}
+Customer Details:
+• Name: ${name}
+• Email: ${email}
+• Message: ${message}
 
-This contact form submission was sent from the ERP Contact website.`,
-        reply_to: 'dragdroperp@gmail.com'
+This inquiry was submitted through the ERP Contact website contact form.
+
+Please respond within 24 hours for best customer experience.`,
+        reply_to: email, // Reply directly to the customer
+        headers: {
+          'List-Unsubscribe': `<mailto:unsubscribe@draganddrop.in?subject=Unsubscribe>`,
+          'X-Customer-Email': email,
+          'X-Source': 'ERP Contact Website'
+        }
       })
 
       // Check if there was an error in the response
@@ -262,26 +269,34 @@ This contact form submission was sent from the ERP Contact website.`,
       const userResult = await resend.emails.send({
         from: `ERP Contact <${senderEmail}>`,
         to: [email],
-        subject: '🙏 Thank You for Contacting ERP Contact',
+        subject: '🙏 Thank You for Your ERP Contact Inquiry',
         html: createUserThankYouTemplate({ name }),
-        text: `Thank You for Contacting ERP Contact
+        text: `Thank You for Your ERP Contact Inquiry
 
 Hi ${name},
 
-We've received your message and appreciate your interest in ERP Contact!
+Thank you for reaching out to ERP Contact! We've received your message and are excited to help you with your business needs.
 
 What happens next:
-1. Review your inquiry - Our team will carefully review your message within 24 hours
-2. Contact you back - We'll respond with solutions tailored to your needs
-3. Discuss your needs - Help you find the perfect ERP solution for your business
+1. 📋 Review your inquiry - Our team will carefully review your message within 24 hours
+2. 📞 Contact you back - We'll respond with tailored solutions for your needs
+3. 💼 Discuss your requirements - Help you find the perfect ERP solution
 
-Questions? Contact us directly:
-Email: dragdroperp@gmail.com
-Website: https://draganddrop.in
+We're here to support your business growth with professional ERP solutions.
+
+Questions? Feel free to reply to this email or contact us directly:
+📧 Email: dragdroperp@gmail.com
+🌐 Website: https://draganddrop.in
 
 Best regards,
-ERP Contact Team`,
-        reply_to: 'dragdroperp@gmail.com'
+The ERP Contact Team
+Professional ERP Solutions for Your Business`,
+        reply_to: 'dragdroperp@gmail.com',
+        headers: {
+          'List-Unsubscribe': `<mailto:unsubscribe@draganddrop.in?subject=Unsubscribe>`,
+          'X-Auto-Response': 'yes',
+          'X-Source': 'ERP Contact Website'
+        }
       })
 
         // Check if there was an error in the response
@@ -314,20 +329,22 @@ ERP Contact Team`,
     }
 
     // User thank-you email failure is logged but doesn't fail the request
-    if (!userEmailResult) {
+    if (!userEmailResult && useVerifiedDomain) {
       console.warn('⚠️  [PRODUCTION] Thank-you email failed, but company notification sent')
       console.warn('   Possible reasons:')
       console.warn('   - Email going to spam folder')
       console.warn('   - Domain reputation issues')
       console.warn('   - User email address issues')
-      console.warn('   - Check spam folder and email filters')
       if (errors.length > 0) {
         console.warn('   Errors:', errors.join(', '))
       }
-    } else {
+    } else if (useVerifiedDomain) {
       console.log('🎉 [PRODUCTION] Both emails sent successfully!')
       console.log('   📧 Company notification: Sent')
       console.log('   🙏 User thank-you: Sent')
+    } else {
+      console.log('✅ [PRODUCTION] Company notification sent successfully')
+      console.log('   📧 User thank-you: Skipped (domain not verified)')
     }
 
     return {
