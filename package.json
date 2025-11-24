@@ -11,8 +11,7 @@
     "build": "npm install --production=false && npm run check",
     "predeploy": "npm run check",
     "test-email": "node test-email.js",
-    "test-resend": "node test-email.js",
-    "test-both": "node test-both-emails.js"
+    "test-contact": "node test-contact-form.js"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -25,8 +24,7 @@
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "mongoose": "^8.19.4",
-    "react-hot-toast": "^2.6.0",
-    "resend": "^6.5.2"
+    "nodemailer": "^6.9.15"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
