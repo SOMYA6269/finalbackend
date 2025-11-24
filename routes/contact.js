@@ -24,7 +24,7 @@ contactRouter.post('/submit', async (req, res) => {
       })
     }
 
-    // Send emails using Resend API (notification to company + thank-you to user)
+    // Send emails using Resend API (notification to company + thank-you to user if domain verified)
     const emailResult = await sendContactEmail({ name, email, message })
 
     // For production: return success as long as company notification was sent
@@ -37,12 +37,16 @@ contactRouter.post('/submit', async (req, res) => {
 
     const responseMessage = emailResult.userEmail
       ? 'Your message has been sent successfully! Check your email for confirmation from ERP Contact.'
-      : 'Your message has been sent successfully!'
+      : 'Your message has been sent successfully! We will get back to you soon.'
 
     res.json({
       success: true,
       message: responseMessage,
-      contactId: `contact_${Date.now()}`
+      contactId: `contact_${Date.now()}`,
+      emailsSent: {
+        company: !!emailResult.companyEmail,
+        user: !!emailResult.userEmail
+      }
     })
   } catch (error) {
     console.error('Contact email error:', error.message)
