@@ -72,13 +72,15 @@ async function connectMongoDB() {
 // Email Service Check
 // -------------------------------
 function checkEmailService() {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey || apiKey.trim() === '') {
-    console.warn('⚠️  RESEND_API_KEY environment variable is not set')
+  const gmailUser = process.env.GMAIL_USER
+  const gmailAppPassword = process.env.GMAIL_APP_PASSWORD
+
+  if (!gmailUser || !gmailAppPassword) {
+    console.warn('⚠️  Gmail SMTP credentials not configured')
     console.warn('   Email functionality will not work')
-    console.warn('   Set RESEND_API_KEY in your environment variables')
+    console.warn('   Set GMAIL_USER and GMAIL_APP_PASSWORD in your environment variables')
   } else {
-    console.log('✅ Resend API key is configured')
+    console.log('✅ Gmail SMTP credentials are configured')
   }
 }
 
