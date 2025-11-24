@@ -1,15 +1,23 @@
 #!/usr/bin/env node
 
-// Simple test to verify resend can be imported
-console.log('🔍 Testing resend import...')
+// Simple test to verify nodemailer can be imported
+console.log('🔍 Testing nodemailer import...')
 
 try {
-  const { Resend } = await import('resend')
-  console.log('✅ resend imported successfully')
+  const nodemailer = await import('nodemailer')
+  console.log('✅ nodemailer imported successfully')
 
-  // Test API client creation
-  const resend = new Resend('test-api-key')
-  console.log('✅ Resend client created successfully')
+  // Test transporter creation (without actual connection)
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'test@example.com',
+      pass: 'test-password'
+    }
+  })
+  console.log('✅ Nodemailer transporter created successfully')
 
   console.log('🎉 All tests passed!')
 } catch (error) {
