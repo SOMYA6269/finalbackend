@@ -14,16 +14,17 @@ const createContactNotificationTemplate = ({ name, email, message }) => `
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
     <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <!-- Header -->
+        <!-- Header with Logo -->
         <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 30px 40px; text-align: center;">
+            <div style="width: 80px; height: 80px; background: #ffffff; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 36px;">🏢</div>
             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">🔔 New Contact Request</h1>
-            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact Form Submission</p>
+            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact - Professional Solutions</p>
         </div>
 
         <!-- Content -->
         <div style="padding: 40px;">
             <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px;">
-                <h2 style="color: #0f172a; margin: 0 0 20px 0; font-size: 20px; font-weight: 600;">Contact Details</h2>
+                <h2 style="color: #0f172a; margin: 0 0 20px 0; font-size: 20px; font-weight: 600;">📋 Contact Details</h2>
 
                 <div style="margin-bottom: 20px;">
                     <div style="display: inline-block; background: #0f172a; color: #ffffff; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; margin-bottom: 8px;">👤 NAME</div>
@@ -46,8 +47,9 @@ const createContactNotificationTemplate = ({ name, email, message }) => `
             </div>
 
             <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
+                <p style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600;">ERP Contact</p>
                 <p style="margin: 0; color: #64748b; font-size: 14px;">
-                    This message was sent from your ERP Contact website form
+                    Professional ERP Solutions for Your Business
                 </p>
             </div>
         </div>
@@ -62,14 +64,15 @@ const createThankYouTemplate = ({ name }) => `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank You for Contacting Us</title>
+    <title>Thank You for Contacting ERP Contact</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc;">
     <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <!-- Header -->
+        <!-- Header with Logo -->
         <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 30px 40px; text-align: center;">
+            <div style="width: 80px; height: 80px; background: #ffffff; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 36px;">🏢</div>
             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">🙏 Thank You for Reaching Out</h1>
-            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">We appreciate your interest in ERP Contact</p>
+            <p style="color: #cbd5e1; margin: 8px 0 0 0; font-size: 16px;">ERP Contact - Professional Solutions</p>
         </div>
 
         <!-- Content -->
@@ -77,17 +80,17 @@ const createThankYouTemplate = ({ name }) => `
             <div style="text-align: center; margin-bottom: 30px;">
                 <div style="font-size: 64px; margin-bottom: 20px;">📬</div>
                 <h2 style="color: #0f172a; margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">Message Received!</h2>
-                <p style="color: #64748b; font-size: 16px; margin: 0;">Hi ${name}, we've received your message</p>
+                <p style="color: #64748b; font-size: 16px; margin: 0;">Hi ${name}, we've received your message and appreciate your interest!</p>
             </div>
 
             <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px;">
-                <h3 style="color: #0f172a; margin: 0 0 20px 0; font-size: 18px; font-weight: 600;">What happens next?</h3>
+                <h3 style="color: #0f172a; margin: 0 0 20px 0; font-size: 18px; font-weight: 600;">🚀 What happens next?</h3>
 
                 <div style="display: flex; align-items: center; margin-bottom: 15px;">
                     <div style="background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 15px;">1</div>
                     <div>
                         <div style="font-weight: 600; color: #0f172a;">Review your inquiry</div>
-                        <div style="color: #64748b; font-size: 14px;">Our team will carefully review your message</div>
+                        <div style="color: #64748b; font-size: 14px;">Our team will carefully review your message within 24 hours</div>
                     </div>
                 </div>
 
@@ -95,7 +98,7 @@ const createThankYouTemplate = ({ name }) => `
                     <div style="background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 15px;">2</div>
                     <div>
                         <div style="font-weight: 600; color: #0f172a;">Contact you back</div>
-                        <div style="color: #64748b; font-size: 14px;">We'll respond within 24-48 hours</div>
+                        <div style="color: #64748b; font-size: 14px;">We'll respond with solutions tailored to your needs</div>
                     </div>
                 </div>
 
@@ -103,7 +106,7 @@ const createThankYouTemplate = ({ name }) => `
                     <div style="background: #10b981; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-right: 15px;">3</div>
                     <div>
                         <div style="font-weight: 600; color: #0f172a;">Discuss your needs</div>
-                        <div style="color: #64748b; font-size: 14px;">Help you find the perfect ERP solution</div>
+                        <div style="color: #64748b; font-size: 14px;">Help you find the perfect ERP solution for your business</div>
                     </div>
                 </div>
             </div>
@@ -111,14 +114,16 @@ const createThankYouTemplate = ({ name }) => `
             <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
                 <p style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600;">Questions? Contact us directly</p>
                 <p style="margin: 0; color: #64748b; font-size: 14px;">
-                    Email: <a href="mailto:contact@erpcompany.com" style="color: #3b82f6; text-decoration: none;">contact@erpcompany.com</a><br>
-                    Phone: <a href="tel:+1234567890" style="color: #3b82f6; text-decoration: none;">+1 (234) 567-8900</a>
+                    Email: <a href="mailto:dragdroperp@gmail.com" style="color: #3b82f6; text-decoration: none;">dragdroperp@gmail.com</a><br>
+                    Website: <a href="https://draganddrop.in" style="color: #3b82f6; text-decoration: none;">draganddrop.in</a>
                 </p>
             </div>
         </div>
 
         <!-- Footer -->
         <div style="background: #0f172a; padding: 20px; text-align: center;">
+            <div style="width: 60px; height: 60px; background: #ffffff; border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🏢</div>
+            <p style="margin: 0 0 5px 0; color: #cbd5e1; font-size: 16px; font-weight: 600;">ERP Contact</p>
             <p style="margin: 0; color: #cbd5e1; font-size: 14px;">
                 © 2024 ERP Contact. All rights reserved.<br>
                 <span style="font-size: 12px;">Empowering businesses with innovative ERP solutions</span>
@@ -150,41 +155,71 @@ export async function sendContactEmail({ name, email, message }) {
   const resend = new Resend(apiKey.trim())
 
   try {
-    console.log('📧 Sending contact emails via Resend API...')
+    console.log('📧 [PRODUCTION] Sending contact emails via Resend API...')
+    console.log('   User:', name, '<' + email + '>')
+    console.log('   Message length:', message.length, 'characters')
+    console.log('   Timestamp:', new Date().toISOString())
+
+    let companyEmailResult = null
+    let userEmailResult = null
+    let errors = []
 
     // Send notification email to company
-    console.log('   📤 Sending notification to company...')
-    console.log('      From: ERP Contact <noreply@mydomain.com>')
-    console.log('      To: dragdroperp@gmail.com')
-    console.log('      Subject: New contact request')
+    try {
+      console.log('   📤 Sending notification to company...')
+      console.log('      From: ERP Contact <noreply@draganddrop.in>')
+      console.log('      To: dragdroperp@gmail.com')
 
-    const companyResult = await resend.emails.send({
-      from: 'ERP Contact <noreply@draganddrop.in>',
-      to: ['dragdroperp@gmail.com'],
-      subject: 'New Contact Request - ERP Contact',
-      html: createContactNotificationTemplate({ name, email, message }),
-    })
+      const companyResult = await resend.emails.send({
+        from: 'ERP Contact <noreply@draganddrop.in>',
+        to: ['dragdroperp@gmail.com'],
+        subject: 'New Contact Request - ERP Contact',
+        html: createContactNotificationTemplate({ name, email, message }),
+      })
 
-    console.log('   ✅ Company notification sent:', companyResult.data?.id)
+      companyEmailResult = companyResult.data?.id
+      console.log('   ✅ Company notification sent successfully:', companyEmailResult)
+    } catch (companyError) {
+      console.error('   ❌ Company notification failed:', companyError.message)
+      errors.push('Company notification: ' + companyError.message)
+    }
 
-    // Send thank-you email to user
-    console.log('   📤 Sending thank-you to user...')
-    console.log('      From: ERP Contact <noreply@draganddrop.in>')
-    console.log('      To:', email)
-    console.log('      Subject: Thank you for contacting ERP Contact')
+    // Send thank-you email to user (always attempt, even if company email failed)
+    try {
+      console.log('   📤 Sending thank-you to user...')
+      console.log('      From: ERP Contact <noreply@draganddrop.in>')
+      console.log('      To:', email)
 
-    const userResult = await resend.emails.send({
-      from: 'ERP Contact <noreply@draganddrop.in>',
-      to: [email],
-      subject: 'Thank You for Contacting ERP Contact',
-      html: createThankYouTemplate({ name }),
-    })
+      const userResult = await resend.emails.send({
+        from: 'ERP Contact <noreply@draganddrop.in>',
+        to: [email],
+        subject: 'Thank You for Contacting ERP Contact',
+        html: createThankYouTemplate({ name }),
+      })
 
-    console.log('   ✅ Thank-you email sent:', userResult.data?.id)
+      userEmailResult = userResult.data?.id
+      console.log('   ✅ Thank-you email sent successfully:', userEmailResult)
+    } catch (userError) {
+      console.error('   ❌ Thank-you email failed:', userError.message)
+      errors.push('Thank-you email: ' + userError.message)
+    }
+
+    // For production: prioritize company notification
+    // If company email failed, this is critical - throw error
+    if (!companyEmailResult) {
+      throw new Error('Unable to send company notification. Please try again later.')
+    }
+
+    // User thank-you email failure is logged but doesn't fail the request
+    if (!userEmailResult) {
+      console.warn('⚠️  [PRODUCTION] Thank-you email failed, but company notification sent:', errors.join(', '))
+    }
 
     return {
-      companyEmail: companyResult.data?.id,
-      userEmail: userResult.data?.id
+      companyEmail: companyEmailResult,
+      userEmail: userEmailResult,
+      success: true,
+      partialSuccess: errors.length > 0
     }
 
   } catch (error) {
@@ -197,7 +232,7 @@ export async function sendContactEmail({ name, email, message }) {
     if (error.statusCode === 401) {
       throw new Error('Resend API authentication failed. Please check your RESEND_API_KEY.')
     } else if (error.statusCode === 403) {
-      throw new Error('Resend API access forbidden. Please check your API key permissions.')
+      throw new Error('Domain not verified! Please verify draganddrop.in in your Resend dashboard. Go to: https://resend.com/domains')
     } else if (error.statusCode === 400) {
       throw new Error('Invalid email request. Please check the email format and content.')
     } else {
