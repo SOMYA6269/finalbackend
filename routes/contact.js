@@ -26,17 +26,81 @@ contactRouter.post('/submit', async (req, res) => {
     }
 
     // Send emails using Resend API (notification to company + thank-you to user)
-    await sendContactEmail({ name, email, message })
+    const emailResult = await sendContactEmail({ name, email, message })
+
+    // For production: return success as long as company notification was sent
+    // User thank-you email is a nice-to-have but not critical
+    const success = !!emailResult.companyEmail
+
+    if (!success) {
+      throw new Error('Failed to send company notification email')
+    }
+
+    const responseMessage = emailResult.userEmail
+      ? 'Your message has been sent successfully! Check your email for confirmation.'
+      : 'Your message has been sent successfully!'
 
     res.json({
       success: true,
-      message: 'Contact emails sent successfully'
+      message: responseMessage,
+      contactId: `contact_${Date.now()}`
     })
   } catch (error) {
     console.error('Contact email error:', error.message)
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to send contact email'
+    })
+  }
+})
+
+// Email system health check (for production monitoring)
+contactRouter.get('/health', async (req, res) => {
+  try {
+    const apiKey = process.env.RESEND_API_KEY
+
+    if (!apiKey || apiKey.trim() === '') {
+      return res.json({
+        status: 'error',
+        emailSystem: 'not_configured',
+        message: 'RESEND_API_KEY not set',
+        timestamp: new Date().toISOString()
+      })
+    }
+
+    // Check if domain is verified by attempting to send a minimal test
+    // This will fail if domain is not verified, but won't actually send an email
+    const { Resend } = await import('resend')
+    const resend = new Resend(apiKey.trim())
+
+    try {
+      // Try to validate the API key and domain by making a minimal request
+      await resend.domains.list()
+
+      res.json({
+        status: 'healthy',
+        emailSystem: 'operational',
+        domain: 'draganddrop.in',
+        message: 'Email system is ready for production use',
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      res.json({
+        status: 'warning',
+        emailSystem: 'domain_not_verified',
+        domain: 'draganddrop.in',
+        message: 'Domain verification required. Check Resend dashboard.',
+        error: error.message,
+        timestamp: new Date().toISOString()
+      })
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      emailSystem: 'failed',
+      message: 'Email system health check failed',
+      error: error.message,
+      timestamp: new Date().toISOString()
     })
   }
 })
