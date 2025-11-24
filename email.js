@@ -167,14 +167,21 @@ export async function sendContactEmail({ name, email, message }) {
     let userEmailResult = null
     let errors = []
 
+    // Try to use verified domain first, fallback to resend.dev
+    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN === 'true'
+    const senderEmail = useVerifiedDomain ? 'noreply@draganddrop.in' : 'noreply@resend.dev'
+
+    console.log('   📧 Using sender domain:', senderEmail)
+    console.log('   📧 Verified domain mode:', useVerifiedDomain ? 'ON' : 'OFF (using resend.dev)')
+
     // Send notification email to company
     try {
       console.log('   📤 Sending notification to company...')
-      console.log('      From: ERP Contact <noreply@resend.dev>')
+      console.log('      From: ERP Contact <' + senderEmail + '>')
       console.log('      To: dragdroperp@gmail.com')
 
       const companyResult = await resend.emails.send({
-        from: 'ERP Contact <noreply@resend.dev>',
+        from: `ERP Contact <${senderEmail}>`,
         to: ['dragdroperp@gmail.com'],
         subject: 'New Contact Request - ERP Contact',
         html: createCompanyNotificationTemplate({ name, email, message }),
@@ -190,20 +197,28 @@ export async function sendContactEmail({ name, email, message }) {
     // Send thank-you email to user (always attempt, even if company email failed)
     try {
       console.log('   📤 Sending thank-you to user...')
-      console.log('      From: ERP Contact <noreply@resend.dev>')
+      console.log('      From: ERP Contact <' + senderEmail + '>')
       console.log('      To:', email)
+      console.log('      Note: If this goes to spam, user should check spam folder')
 
       const userResult = await resend.emails.send({
-        from: 'ERP Contact <noreply@resend.dev>',
+        from: `ERP Contact <${senderEmail}>`,
         to: [email],
         subject: 'Thank You for Contacting ERP Contact',
         html: createUserThankYouTemplate({ name }),
       })
 
-      userEmailResult = userResult.data?.id
+      userEmailResult = userResult.data?.id || 'sent'
       console.log('   ✅ Thank-you email sent successfully:', userEmailResult)
+      console.log('   📧 User should check inbox AND spam folder')
+
     } catch (userError) {
       console.error('   ❌ Thank-you email failed:', userError.message)
+      console.error('   📧 This might be due to:')
+      console.error('      - Email going to spam (most common)')
+      console.error('      - Domain reputation issues')
+      console.error('      - User email server filtering')
+
       errors.push('Thank-you email: ' + userError.message)
     }
 
@@ -215,7 +230,19 @@ export async function sendContactEmail({ name, email, message }) {
 
     // User thank-you email failure is logged but doesn't fail the request
     if (!userEmailResult) {
-      console.warn('⚠️  [PRODUCTION] Thank-you email failed, but company notification sent:', errors.join(', '))
+      console.warn('⚠️  [PRODUCTION] Thank-you email failed, but company notification sent')
+      console.warn('   Possible reasons:')
+      console.warn('   - Email going to spam folder')
+      console.warn('   - Domain reputation issues')
+      console.warn('   - User email address issues')
+      console.warn('   - Check spam folder and email filters')
+      if (errors.length > 0) {
+        console.warn('   Errors:', errors.join(', '))
+      }
+    } else {
+      console.log('🎉 [PRODUCTION] Both emails sent successfully!')
+      console.log('   📧 Company notification: Sent')
+      console.log('   🙏 User thank-you: Sent')
     }
 
     return {
