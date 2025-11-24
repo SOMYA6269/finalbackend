@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-// Professional email templates with logo
+// Professional email templates with ERP Contact branding and logo
 const createCompanyNotificationTemplate = ({ name, email, message }) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -82,7 +82,7 @@ const createUserThankYouTemplate = ({ name }) => `
             <div style="text-align: center; margin-bottom: 30px;">
                 <div style="font-size: 64px; margin-bottom: 20px;">📬</div>
                 <h2 style="color: #0f172a; margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">Message Received!</h2>
-                <p style="color: #64748b; font-size: 16px; margin: 0;">Hi ${name}, we've received your message and appreciate your interest!</p>
+                <p style="color: #64748b; font-size: 16px; margin: 0;">Hi ${name}, we've received your message and appreciate your interest in ERP Contact!</p>
             </div>
 
             <div style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 8px; padding: 30px; margin-bottom: 30px;">
@@ -115,7 +115,7 @@ const createUserThankYouTemplate = ({ name }) => `
 
             <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 8px;">
                 <img src="https://draganddrop.in/ddfinal.png" alt="ERP Contact" style="width: 40px; height: 40px; border-radius: 50%; margin-bottom: 10px;">
-                <p style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600;">Questions? Contact us directly</p>
+                <p style="margin: 0 0 10px 0; color: #0f172a; font-size: 16px; font-weight: 600;">Questions? Contact ERP Contact directly</p>
                 <p style="margin: 0; color: #64748b; font-size: 14px;">
                     Email: <a href="mailto:dragdroperp@gmail.com" style="color: #3b82f6; text-decoration: none;">dragdroperp@gmail.com</a><br>
                     Website: <a href="https://draganddrop.in" style="color: #3b82f6; text-decoration: none;">www.draganddrop.in</a>
@@ -139,7 +139,7 @@ const createUserThankYouTemplate = ({ name }) => `
 
 /**
  * Send contact emails using Resend API
- * Sends both company notification and user thank-you emails
+ * Sends both company notification and user thank-you emails with professional branding
  * @param {Object} contactData - Contact form data
  * @param {string} contactData.name - Contact name
  * @param {string} contactData.email - Contact email
@@ -167,12 +167,17 @@ export async function sendContactEmail({ name, email, message }) {
     let userEmailResult = null
     let errors = []
 
-    // Try to use verified domain first, fallback to resend.dev
-    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN === 'true'
+    // Use resend.dev for testing (verified domains may fail if not set up)
+    const useVerifiedDomain = process.env.USE_VERIFIED_DOMAIN === 'true' // Default to false for testing
     const senderEmail = useVerifiedDomain ? 'noreply@draganddrop.in' : 'noreply@resend.dev'
 
     console.log('   📧 Using sender domain:', senderEmail)
-    console.log('   📧 Verified domain mode:', useVerifiedDomain ? 'ON' : 'OFF (using resend.dev)')
+    console.log('   📧 Domain verification:', useVerifiedDomain ? 'ENABLED (draganddrop.in)' : 'DISABLED (resend.dev)')
+
+    if (useVerifiedDomain) {
+      console.log('   ⚠️  IMPORTANT: Ensure draganddrop.in is verified in Resend dashboard')
+      console.log('      If emails fail, set USE_VERIFIED_DOMAIN=false to use resend.dev fallback')
+    }
 
     // Send notification email to company
     try {
@@ -187,7 +192,12 @@ export async function sendContactEmail({ name, email, message }) {
         html: createCompanyNotificationTemplate({ name, email, message }),
       })
 
-      companyEmailResult = companyResult.data?.id
+      // Check if there was an error in the response
+      if (companyResult.error) {
+        throw new Error(`Resend API error: ${companyResult.error.message}`)
+      }
+
+      companyEmailResult = companyResult.data?.id || companyResult.id || 'sent'
       console.log('   ✅ Company notification sent successfully:', companyEmailResult)
     } catch (companyError) {
       console.error('   ❌ Company notification failed:', companyError.message)
@@ -208,9 +218,15 @@ export async function sendContactEmail({ name, email, message }) {
         html: createUserThankYouTemplate({ name }),
       })
 
-      userEmailResult = userResult.data?.id || 'sent'
-      console.log('   ✅ Thank-you email sent successfully:', userEmailResult)
-      console.log('   📧 User should check inbox AND spam folder')
+      // Check if there was an error in the response
+      if (userResult.error) {
+        console.warn('   ⚠️ User email API error (but continuing):', userResult.error.message)
+        userEmailResult = null // Mark as failed but continue
+      } else {
+        userEmailResult = userResult.data?.id || userResult.id || 'sent'
+        console.log('   ✅ Thank-you email sent successfully:', userEmailResult)
+        console.log('   📧 User should check inbox AND spam folder')
+      }
 
     } catch (userError) {
       console.error('   ❌ Thank-you email failed:', userError.message)
